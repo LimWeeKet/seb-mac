@@ -827,10 +827,23 @@ static NSMutableSet *browserWindowControllers;
                                                                          options: 0
                                                                          metrics: nil
                                                                            views: viewsDictionary];
-        NSArray *constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView(==20)]-0-[containerView]"
-                                                                         options: 0
-                                                                         metrics: nil
-                                                                           views: viewsDictionary];
+        
+        NSArray *constraints_V;
+        if (@available (iOS 11.0, *)) {
+            id safeAreaLayoutGuide = self.view.safeAreaLayoutGuide;
+
+            NSDictionary *viewsDictionary2 = @{@"safeAreaLayoutGuide" : safeAreaLayoutGuide,
+                                               @"statusBarView" : _statusBarView};
+            constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView]-0-[safeAreaLayoutGuide]"
+                                                                    options: 0
+                                                                    metrics: nil
+                                                                      views: viewsDictionary2];
+        } else {
+            constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView(==20)]-0-[containerView]"
+                                                                             options: 0
+                                                                             metrics: nil
+                                                                               views: viewsDictionary];
+        }
         [self.view addConstraints:constraints_H];
         [self.view addConstraints:constraints_V];
     }
@@ -848,7 +861,12 @@ static NSMutableSet *browserWindowControllers;
         _statusBarView.hidden = false;
         
     } else {
-        _statusBarView.hidden = true;
+        if (@available (iOS 11.0, *)) {
+            _statusBarView.backgroundColor = [UIColor blackColor];
+            _statusBarView.hidden = false;
+        } else {
+            _statusBarView.hidden = true;
+        }
     }
     
     [self setNeedsStatusBarAppearanceUpdate];
