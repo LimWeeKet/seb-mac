@@ -55,6 +55,34 @@
     }
     return CGSizeMake(screenRect.size.width, kNavbarHeight);
 }
+
+- (void)setFrame:(CGRect)frame {
+//    if ([UIApplication sharedApplication].isStatusBarHidden) {
+//    }
+    frame.size.height = 32;
+    [super setFrame:frame];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    for (UIView *subview in self.subviews) {
+        NSString* subViewClassName = NSStringFromClass([subview class]);
+        if ([subViewClassName containsString:@"UIBarBackground"]) {
+            subview.frame = self.bounds;
+        } else if ([subViewClassName containsString:@"ContentView"]) {
+            CGRect newFrame = subview.frame;
+            if (subview.frame.size.height < 32) {
+                newFrame.origin.y = 32 - newFrame.size.height;
+            } else {
+                newFrame.origin.y = 0;
+            }
+            subview.frame = newFrame;
+        }
+    }
+}
+
 @end
 
 
@@ -829,21 +857,21 @@ static NSMutableSet *browserWindowControllers;
                                                                            views: viewsDictionary];
         
         NSArray *constraints_V;
-        if (@available (iOS 11.0, *)) {
-            id safeAreaLayoutGuide = self.view.safeAreaLayoutGuide;
-
-            NSDictionary *viewsDictionary2 = @{@"safeAreaLayoutGuide" : safeAreaLayoutGuide,
-                                               @"statusBarView" : _statusBarView};
-            constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView]-0-[safeAreaLayoutGuide]"
-                                                                    options: 0
-                                                                    metrics: nil
-                                                                      views: viewsDictionary2];
-        } else {
+//        if (@available (iOS 11.0, *)) {
+//            id safeAreaLayoutGuide = self.view.safeAreaLayoutGuide;
+//
+//            NSDictionary *viewsDictionary2 = @{@"safeAreaLayoutGuide" : safeAreaLayoutGuide,
+//                                               @"statusBarView" : _statusBarView};
+//            constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView]-0-[safeAreaLayoutGuide]"
+//                                                                    options: 0
+//                                                                    metrics: nil
+//                                                                      views: viewsDictionary2];
+//        } else {
             constraints_V = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|-0-[statusBarView(==20)]-0-[containerView]"
                                                                              options: 0
                                                                              metrics: nil
                                                                                views: viewsDictionary];
-        }
+//        }
         [self.view addConstraints:constraints_H];
         [self.view addConstraints:constraints_V];
     }
@@ -861,12 +889,12 @@ static NSMutableSet *browserWindowControllers;
         _statusBarView.hidden = false;
         
     } else {
-        if (@available (iOS 11.0, *)) {
-            _statusBarView.backgroundColor = [UIColor blackColor];
-            _statusBarView.hidden = false;
-        } else {
+//        if (@available (iOS 11.0, *)) {
+//            _statusBarView.backgroundColor = [UIColor blackColor];
+//            _statusBarView.hidden = false;
+//        } else {
             _statusBarView.hidden = true;
-        }
+//        }
     }
     
     [self setNeedsStatusBarAppearanceUpdate];
